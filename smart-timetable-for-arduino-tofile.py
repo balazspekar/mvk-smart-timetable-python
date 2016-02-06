@@ -1,4 +1,4 @@
-import urllib.parse, urllib.request, time, os
+import urllib.parse, urllib.request, urllib.error, time, os
 from datetime import datetime, date
 from pprint import pprint
 
@@ -16,10 +16,11 @@ class StationScreen():
         data = urllib.parse.urlencode(values)
         binary_data = data.encode('utf_8')
         req = urllib.request.Request(url, binary_data)
-        response = urllib.request.urlopen(req)
+        response = urllib.request.urlopen(req, timeout=5)
         raw_result = str(response.read())
         result = raw_result.split("\\n")
         return result
+
 
     def _clean(self):
         result = []
@@ -117,14 +118,16 @@ class StationScreen():
 # Instantiating StationScreen objects
 laev_to_downtown = StationScreen("514")
 laev_to_diosgyor = StationScreen("513")
-brightness = "max"
-now = datetime.now()
+# setting brightness level to max
+brightness = 1
 
-if int(now.strftime("%H")) > 6 and int(now.strftime("%H")) < 22:
-    brightness = "max"
-else:
-    brightness = "min"
+while True:
+    time.sleep(10)
+    now = datetime.now()
+    if int(now.strftime("%H")) > 6 and int(now.strftime("%H")) < 22:
+        brightness = 1
+    else:
+        brightness = 0
 
-
-with open("result.txt", "w") as result_file:
-    result_file.write("Content-Type: text/html\r\n\r" + laev_to_downtown.generateLCD() + "\n" +  laev_to_diosgyor.generateLCD() + "\n" + now.strftime("%H:%M") + "\n" + now.strftime("%Y-%m-%d") + "\n" + brightness)
+    with open("result.txt", "w") as result_file:
+        result_file.write("Content-Type: text/html\r\n\r" + laev_to_downtown.generateLCD() + "\n" +  laev_to_diosgyor.generateLCD() + "\n" + now.strftime("%H:%M") + "\n" + now.strftime("%Y-%m-%d") + "\n" + str(brightness))
