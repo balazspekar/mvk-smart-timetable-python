@@ -11,6 +11,7 @@ class Schedule:
         self.station_id = station_id
         self.raw_data = self.fetch_raw_data()
         self.departure_times = self.extractDepartureTimes(self.raw_data)
+        self.remaining_seconds = []
 
     def fetch_raw_data(self):
         url = 'http://owa.mvkzrt.hu:8080/android/handler.php'
@@ -26,7 +27,7 @@ class Schedule:
         regex = r"[0-9]+:[0-9]+:[0-9]+"
         return re.findall(regex, line)  # returns a list of strings like ['12:14:34', '12:20:00'] etc
 
-    def getRemainingSeconds(self):
+    def update_remaining_seconds(self):
         remaining_seconds = []
         now = datetime.now()
         time_format = '%H:%M:%S'
@@ -42,11 +43,10 @@ class Schedule:
             else:
                 remaining_seconds.append(diff_seconds)
 
-        return remaining_seconds
+        self.remaining_seconds = remaining_seconds
 
 
 if __name__ == '__main__':
-    schedule_1 = Schedule("514")
-    print(schedule_1.getRemainingSeconds())
-    schedule_2 = Schedule("513")
-    print(schedule_2.getRemainingSeconds())
+    schedule = Schedule("514")
+    schedule.update_remaining_seconds()
+    print(schedule.remaining_seconds)
